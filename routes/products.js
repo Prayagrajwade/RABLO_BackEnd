@@ -190,4 +190,27 @@ router.post('/logout', auth, (req, res) => {
     // In the client, you should remove the token from local storage or cookie.
     res.json({ msg: 'Logged out successfully' });
 });
+
+router.get('/filtered', async (req, res) => {
+    const { price, rating, featured } = req.query;
+    const query = {};
+  
+    // Add filters to query object if they exist
+    if (price) {
+      query.price = { $lte: price };
+    }
+    if (rating) {
+      query.rating = { $gt: rating };
+    }
+    if (featured) {
+      query.featured = featured === 'true'; // Convert string to boolean
+    }
+  
+    try {
+      const products = await Product.find(query);
+      res.json(products);
+    } catch (err) {
+      res.status(500).json({ error: 'Server error' });
+    }
+});
 export default router;
